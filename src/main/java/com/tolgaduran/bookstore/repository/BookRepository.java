@@ -1,7 +1,10 @@
 package com.tolgaduran.bookstore.repository;
 
 import com.tolgaduran.bookstore.model.Book;
+import com.tolgaduran.bookstore.util.NumberGenerator;
+import com.tolgaduran.bookstore.util.TextUtil;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
@@ -16,12 +19,20 @@ public class BookRepository {
     @PersistenceContext(unitName = "bookStorePU")
     private EntityManager em;
 
+    @Inject
+    private NumberGenerator generator;
+
+    @Inject
+    private TextUtil textUtil;
+
     public Book find(@NotNull Long id) {
         return em.find(Book.class, id);
     }
 
     @Transactional(REQUIRED)
     public Book create(@NotNull Book book) {
+        book.setIsbn(generator.generateNumber());
+        book.setTitle(textUtil.sanitize(book.getTitle()));
         em.persist(book);
         return book;
     }
